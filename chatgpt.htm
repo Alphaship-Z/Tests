@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Calendar</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .calendar {
+      width: 75vw;
+      height:75vh;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      border-radius: 8px;
+    }
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .calendar-header div {
+      cursor: pointer;
+      user-select: none;
+    }
+    .calendar-body {
+      display: grid;
+      grid-template-columns: repeat(7, 10fr);
+      gap: 5vw;
+    }
+    .calendar-day {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 40px;
+      cursor: pointer;
+    }
+    .calendar-day:hover {
+      background-color: #f0f0f0;
+      border-radius: 50%;
+    }
+    .calendar-today {
+      background-color: #007bff;
+      color: white;
+      border-radius: 50%;
+    }
+    .calendar-other-month {
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="calendar">
+    <div class="calendar-header">
+      <div id="prevYear">&laquo;  Year</div>
+      <div id="prevMonth">&lsaquo;  Month</div>
+      <div id="currentMonth"></div>
+      <div id="nextMonth"> Month &rsaquo;</div>
+      <div id="nextYear"> Year &raquo;</div>
+    </div>
+    <div class="calendar-body"></div>
+  </div>
+
+  <script>
+    const calendarBody = document.querySelector('.calendar-body');
+    const currentMonthElement = document.getElementById('currentMonth');
+    let currentDate = new Date();
+
+    function loadCalendar(date) {
+      calendarBody.innerHTML = '';
+      currentMonthElement.textContent = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
+
+      const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+      const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+      const lastDayOfPrevMonth = new Date(date.getFullYear(), date.getMonth(), 0);
+
+      const daysInMonth = lastDayOfMonth.getDate();
+      const firstDayIndex = firstDayOfMonth.getDay();
+      const daysInPrevMonth = lastDayOfPrevMonth.getDate();
+
+      // Days from the previous month
+      for (let i = firstDayIndex; i > 0; i--) {
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day calendar-other-month';
+        dayElement.textContent = daysInPrevMonth - i + 1;
+        calendarBody.appendChild(dayElement);
+      }
+
+      // Days of the current month
+      for (let i = 1; i <= daysInMonth; i++) {
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day';
+        if (i === date.getDate() && date.getMonth() === new Date().getMonth() && date.getFullYear() === new Date().getFullYear()) {
+          dayElement.classList.add('calendar-today');
+        }
+        dayElement.textContent = i;
+        calendarBody.appendChild(dayElement);
+      }
+
+      // Days of the next month
+      const nextDays = 42 - (daysInMonth + firstDayIndex); // Fill the remaining cells with next month's days
+      for (let i = 1; i <= nextDays; i++) {
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day calendar-other-month';
+        dayElement.textContent = i;
+        calendarBody.appendChild(dayElement);
+      }
+    }
+
+    document.getElementById('prevMonth').onclick = () => {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      loadCalendar(currentDate);
+    };
+
+    document.getElementById('nextMonth').onclick = () => {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      loadCalendar(currentDate);
+    };
+
+    document.getElementById('prevYear').onclick = () => {
+      currentDate.setFullYear(currentDate.getFullYear() - 1);
+      loadCalendar(currentDate);
+    };
+
+    document.getElementById('nextYear').onclick = () => {
+      currentDate.setFullYear(currentDate.getFullYear() + 1);
+      loadCalendar(currentDate);
+    };
+
+    // Load current month, previous month, and next month on page load
+    loadCalendar(currentDate);
+  </script>
+</body>
+</html>
