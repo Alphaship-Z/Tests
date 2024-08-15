@@ -68,8 +68,8 @@ function updateTasksList() {
   tasksContainer.innerHTML = tasksForDate.map(task => `
     <div class="task">
       <div class="actions">
-        <button class="delete"><img src="images/delete.png"></button>
-        <button class="edit"><img src="images/edit.png"></button>
+        <button class="delete"><img src="delete.png"></button>
+        <button class="edit"><img src="edit.png"></button>
       </div>
       <span class="task-desc">${task}</span>
       <div class="white-line"></div> 
@@ -124,14 +124,14 @@ function addTaskActions() {
     const editBtnImg = editBtn.querySelector('img');
     const dateKey = moment(selectedDate).format('YYYY-MM-DD');
 
-    if (editBtnImg.getAttribute('src') === 'images/edit.png') {
+    if (editBtnImg.getAttribute('src') === 'edit.png') {
       taskSpan.setAttribute('contenteditable', 'true');
       taskSpan.focus();
-      editBtnImg.setAttribute('src', 'images/done.png');
-    } else if (editBtnImg.getAttribute('src') === 'images/done.png') {
+      editBtnImg.setAttribute('src', 'done.png');
+    } else if (editBtnImg.getAttribute('src') === 'done.png') {
       const taskDesc = taskSpan.innerText || taskSpan.textContent;
       taskSpan.setAttribute('contenteditable', 'false');
-      editBtnImg.setAttribute('src', 'images/edit.png');
+      editBtnImg.setAttribute('src', 'edit.png');
       // Find and update the task in the tasks array
       const taskIndex = Array.from(tasksContainer.querySelectorAll('.task-desc')).indexOf(taskSpan);
       if (taskIndex !== -1) {
