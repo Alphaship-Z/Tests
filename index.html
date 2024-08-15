@@ -1,152 +1,38 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Manager Calendar</title>
-    <style>
-        .calendar-container { display: flex; flex-direction: column; align-items: center; }
-        .calendar-header { display: flex; justify-content: center; gap: 20px; margin-bottom: 10px; }
-        .calendar-days { display: flex; flex-wrap: wrap; width: 280px; }
-        .day { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border: 1px solid #ddd; margin: 1px; cursor: pointer; }
-        .day.selected { background-color: #eee; }
-        #tasks-container { margin-top: 20px; }
-        .task { border-bottom: 1px solid #ddd; padding: 5px 0; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Tracker</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="wrapper">
     <div class="calendar-container">
-        <div class="calendar-header">
-            <button id="prev-year">&laquo;</button>
-            <button id="prev-month">&lsaquo;</button>
-            <span id="month-year"></span>
-            <button id="next-month">&rsaquo;</button>
-            <button id="next-year">&raquo;</button>
-        </div>
-        <div id="calendar" class="calendar-days"></div>
+      <div class="calendar-header">
+        <button id="prev-year">&laquo;</button>
+        <button id="prev-month">&lsaquo;</button>
+        <span id="month-year"></span>
+        <button id="next-month">&rsaquo;</button>
+        <button id="next-year">&raquo;</button>
+      </div>
+      <div id="calendar" class="calendar-days"></div>
+      <div class="task-adder">
         <input type="text" id="task-desc" placeholder="Task Description">
-        <input type="date" id="task-date">
         <button id="add-task">Add Task</button>
-        <div id="tasks-container"></div>
-    </div>
+      </div>
+      <div id="tasks-container"></div>
+   </div>
+  </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <script>
-        const calendarContainer = document.getElementById('calendar');
-        const monthYearDisplay = document.getElementById('month-year');
-        const taskDescInput = document.getElementById('task-desc');
-        const taskDateInput = document.getElementById('task-date');
-        const addTaskButton = document.getElementById('add-task');
-        const tasksContainer = document.getElementById('tasks-container');
+  <dialog class="confirm">
+    <button class="cancel-button">&times;</button>
+    <span class="confirm-text">Are you sure you want to delete <span class="task-name"></span></span>
+    <button class="confirm-button">Okay</button>
+    <h6 class="advice">Incase you want to cancel, Click outside this box</h6>
+  </dialog>
+ 
 
-        let selectedDate = null;
-        let tasks = {};
-        let currentYear = new Date().getFullYear();
-        let currentMonth = new Date().getMonth();
-
-        function createCalendar(year, month) {
-            const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
-            const days = [];
-
-            for (let i = 0; i < firstDay.getDay(); i++) {
-                days.push('');
-            }
-            for (let i = 1; i <= lastDay.getDate(); i++) {
-                days.push(i);
-            }
-            const nextMonthDays = 42 - days.length;
-            for (let i = 0; i < nextMonthDays; i++) {
-                days.push('');
-            }
-
-            calendarContainer.innerHTML = '';
-            days.forEach(day => {
-                const dayDiv = document.createElement('div');
-                dayDiv.className = 'day';
-                dayDiv.textContent = day;
-                if (day) {
-                    dayDiv.addEventListener('click', () => {
-                        selectDate(year, month, day);
-                    });
-                }
-                calendarContainer.appendChild(dayDiv);
-            });
-
-            monthYearDisplay.textContent = moment(new Date(year, month)).format('MMMM YYYY');
-        }
-
-        function selectDate(year, month, day) {
-            selectedDate = new Date(year, month, day);
-            document.querySelectorAll('.day').forEach(dayDiv => {
-                dayDiv.classList.remove('selected');
-            });
-            const selectedDayDiv = Array.from(document.querySelectorAll('.day'))
-                .find(dayDiv => dayDiv.textContent == day);
-            if (selectedDayDiv) selectedDayDiv.classList.add('selected');
-            updateTasksList();
-        }
-
-        function updateTasksList() {
-            if (!selectedDate) return;
-            const dateKey = moment(selectedDate).format('YYYY-MM-DD');
-            const tasksForDate = tasks[dateKey] || [];
-            tasksContainer.innerHTML = tasksForDate.map(task => `<div class="task">${task}</div>`).join('');
-        }
-
-        function addTask() {
-            if (!selectedDate) return;
-            const dateKey = moment(selectedDate).format('YYYY-MM-DD');
-            const taskDesc = taskDescInput.value.trim();
-            if (!taskDesc) return;
-
-            if (!tasks[dateKey]) {
-                tasks[dateKey] = [];
-            }
-            tasks[dateKey].push(taskDesc);
-            taskDescInput.value = '';
-            updateTasksList();
-            saveTasks();
-        }
-
-        function saveTasks() {
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-        }
-
-        function loadTasks() {
-            const savedTasks = localStorage.getItem('tasks');
-            if (savedTasks) {
-                tasks = JSON.parse(savedTasks);
-            }
-        }
-
-        function changeMonth(diff) {
-            currentMonth += diff;
-            if (currentMonth < 0) {
-                currentMonth = 11;
-                currentYear--;
-            } else if (currentMonth > 11) {
-                currentMonth = 0;
-                currentYear++;
-            }
-            createCalendar(currentYear, currentMonth);
-        }
-
-        function changeYear(diff) {
-            currentYear += diff;
-            createCalendar(currentYear, currentMonth);
-        }
-
-        document.getElementById('prev-month').addEventListener('click', () => changeMonth(-1));
-        document.getElementById('next-month').addEventListener('click', () => changeMonth(1));
-        document.getElementById('prev-year').addEventListener('click', () => changeYear(-1));
-        document.getElementById('next-year').addEventListener('click', () => changeYear(1));
-        addTaskButton.addEventListener('click', addTask);
-
-        document.addEventListener('DOMContentLoaded', () => {
-            loadTasks();
-            createCalendar(currentYear, currentMonth);
-        });
-    </script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+ <script src="script.js"></script>
 </body>
 </html>
